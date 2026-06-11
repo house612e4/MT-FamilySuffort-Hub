@@ -3,55 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Family Support Hub</title>
+<title>MT Studio — Family Support</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background: #0f1117;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: #0b0f1a;
   color: #e0e0e0;
   min-height: 100vh;
 }
 
+/* HEADER */
 .header {
-  background: #1a1d2e;
-  padding: 14px 16px;
+  background: linear-gradient(135deg, #0d1828 0%, #111827 100%);
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #2a2d3e;
+  border-bottom: 1px solid rgba(0,212,255,0.15);
   position: sticky;
   top: 0;
   z-index: 100;
 }
-.header h1 { font-size: 17px; color: #fff; }
-.header h1 span { color: #4f8ef7; }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-badge {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #00d4ff, #7c3aed);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.logo-text { line-height: 1.2; }
+.logo-text .brand { font-size: 14px; font-weight: 700; color: #fff; }
+.logo-text .sub { font-size: 10px; color: #00d4ff; letter-spacing: 1px; text-transform: uppercase; }
+
 .status-pill {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #0f1117;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   padding: 5px 10px;
   border-radius: 20px;
   font-size: 12px;
 }
 .dot {
-  width: 8px; height: 8px;
+  width: 7px; height: 7px;
   border-radius: 50%;
   background: #f44336;
 }
-.dot.online { background: #4caf50; animation: blink 1.5s infinite; }
+.dot.online {
+  background: #00d4ff;
+  box-shadow: 0 0 6px #00d4ff;
+  animation: blink 1.5s infinite;
+}
 @keyframes blink { 50% { opacity: 0.3; } }
 
+/* PAGES */
 .page { display: none; padding: 14px; max-width: 500px; margin: 0 auto; }
 .page.active { display: block; }
 
+/* BOTTOM NAV */
 .bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: #1a1d2e;
-  border-top: 1px solid #2a2d3e;
+  background: #0d1828;
+  border-top: 1px solid rgba(0,212,255,0.1);
   display: flex;
   z-index: 100;
 }
@@ -62,81 +91,100 @@ body {
   cursor: pointer;
   border: none;
   background: none;
-  color: #555;
+  color: #444;
   font-size: 11px;
   transition: color 0.2s;
 }
 .nav-item .nicon { font-size: 20px; margin-bottom: 3px; }
-.nav-item.active { color: #4f8ef7; }
+.nav-item.active { color: #00d4ff; }
 
+/* CARD */
 .card {
-  background: #1a1d2e;
-  border-radius: 12px;
-  padding: 14px;
+  background: linear-gradient(135deg, #0d1828, #111827);
+  border-radius: 14px;
+  padding: 16px;
   margin-bottom: 14px;
-  border: 1px solid #2a2d3e;
+  border: 1px solid rgba(0,212,255,0.1);
 }
 .card-title {
-  font-size: 12px;
-  color: #666;
+  font-size: 11px;
+  color: #00d4ff;
   margin-bottom: 12px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
 }
 
+/* INPUT */
 input[type=text] {
   width: 100%;
-  background: #0f1117;
-  border: 1px solid #2a2d3e;
-  border-radius: 8px;
-  padding: 11px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
   color: #fff;
   font-size: 14px;
   outline: none;
   margin-bottom: 10px;
+  transition: border-color 0.2s;
 }
-input[type=text]:focus { border-color: #4f8ef7; }
+input[type=text]:focus { border-color: #00d4ff; }
 
+/* BTN */
 .btn {
-  padding: 11px 18px;
-  border-radius: 8px;
+  padding: 12px 18px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   width: 100%;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
 }
-.btn:active { opacity: 0.8; }
-.btn-blue { background: #4f8ef7; color: #fff; }
-.btn-red { background: #f44336; color: #fff; }
-.btn-gray { background: #2a2d3e; color: #aaa; }
+.btn:active { transform: scale(0.98); }
+.btn-cyan {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #000;
+}
+.btn-red {
+  background: linear-gradient(135deg, #f44336, #c62828);
+  color: #fff;
+}
+.btn-gray { background: rgba(255,255,255,0.07); color: #aaa; }
 
+/* INFO GRID */
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 .info-box {
-  background: #0f1117;
-  border-radius: 8px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
   padding: 12px;
   text-align: center;
+  border: 1px solid rgba(255,255,255,0.04);
 }
-.info-box .il { font-size: 11px; color: #555; margin-bottom: 5px; }
-.info-box .iv { font-size: 15px; color: #fff; font-weight: 600; }
+.info-box .il { font-size: 10px; color: #555; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.info-box .iv { font-size: 16px; color: #fff; font-weight: 700; }
 
+/* SCREEN */
 .screen-wrap {
   background: #000;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 9/16;
   cursor: crosshair;
-  border: 2px solid #2a2d3e;
+  border: 2px solid rgba(0,212,255,0.2);
   position: relative;
   margin-bottom: 12px;
+  transition: border-color 0.3s;
 }
-.screen-wrap.online { border-color: #4caf50; }
+.screen-wrap.online {
+  border-color: #00d4ff;
+  box-shadow: 0 0 20px rgba(0,212,255,0.1);
+}
 .screen-placeholder {
   position: absolute;
   inset: 0;
@@ -144,7 +192,7 @@ input[type=text]:focus { border-color: #4f8ef7; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #333;
+  color: #222;
   gap: 10px;
   font-size: 13px;
 }
@@ -153,13 +201,14 @@ input[type=text]:focus { border-color: #4f8ef7; }
   position: absolute;
   width: 28px; height: 28px;
   border-radius: 50%;
-  background: rgba(79,142,247,0.5);
+  background: rgba(0,212,255,0.5);
   transform: translate(-50%,-50%) scale(0);
   animation: rip 0.5s ease-out forwards;
   pointer-events: none;
 }
 @keyframes rip { to { transform: translate(-50%,-50%) scale(2.5); opacity:0; } }
 
+/* NAV BTNS */
 .nav-btns {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -167,70 +216,93 @@ input[type=text]:focus { border-color: #4f8ef7; }
   margin-bottom: 12px;
 }
 .nav-btn {
-  background: #0f1117;
-  border: 1px solid #2a2d3e;
-  border-radius: 8px;
+  background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 10px;
   padding: 12px;
   text-align: center;
   cursor: pointer;
   color: #ccc;
   font-size: 13px;
+  transition: all 0.2s;
 }
-.nav-btn:active { background: #1e2235; }
+.nav-btn:active { background: rgba(0,212,255,0.15); }
 
+/* QUICK GRID */
 .quick-grid {
   display: grid;
   grid-template-columns: repeat(3,1fr);
   gap: 8px;
 }
 .quick-btn {
-  background: #0f1117;
-  border: 1px solid #2a2d3e;
-  border-radius: 10px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(0,212,255,0.1);
+  border-radius: 12px;
   padding: 14px 6px;
   text-align: center;
   cursor: pointer;
+  transition: all 0.2s;
 }
-.quick-btn:active { background: #1e2235; }
+.quick-btn:active {
+  background: rgba(0,212,255,0.1);
+  border-color: #00d4ff;
+}
 .quick-btn .qi { font-size: 20px; margin-bottom: 5px; }
-.quick-btn .ql { font-size: 11px; color: #666; }
+.quick-btn .ql { font-size: 11px; color: #555; }
 
+/* LOG */
 .log-box {
-  background: #0f1117;
-  border-radius: 8px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 10px;
   padding: 10px;
   height: 200px;
   overflow-y: auto;
   font-size: 12px;
-  font-family: monospace;
+  font-family: 'Courier New', monospace;
+  border: 1px solid rgba(255,255,255,0.04);
 }
-.ll { margin-bottom: 3px; color: #555; }
-.ll.s { color: #4caf50; }
+.ll { margin-bottom: 4px; color: #444; }
+.ll.s { color: #00d4ff; }
 .ll.e { color: #f44336; }
-.ll.i { color: #4f8ef7; }
+.ll.i { color: #7c3aed; }
 
+/* TOAST */
 .toast {
   position: fixed;
   bottom: 70px; left: 50%;
   transform: translateX(-50%) translateY(60px);
-  background: #1a1d2e;
-  border: 1px solid #2a2d3e;
+  background: #0d1828;
+  border: 1px solid rgba(0,212,255,0.3);
   color: #fff;
-  padding: 10px 18px;
+  padding: 10px 20px;
   border-radius: 20px;
   font-size: 13px;
   transition: transform 0.3s;
   z-index: 999;
   white-space: nowrap;
+  box-shadow: 0 0 20px rgba(0,212,255,0.1);
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
 .pb { padding-bottom: 70px; }
+
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: rgba(0,212,255,0.08);
+  margin: 12px 0;
+}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>👨‍👩‍👧 <span>Family</span> Support</h1>
+  <div class="logo">
+    <div class="logo-badge">MT</div>
+    <div class="logo-text">
+      <div class="brand">MT Studio</div>
+      <div class="sub">Family Support</div>
+    </div>
+  </div>
   <div class="status-pill">
     <div class="dot" id="dot"></div>
     <span id="statusTxt">অফলাইন</span>
@@ -240,10 +312,11 @@ input[type=text]:focus { border-color: #4f8ef7; }
 <!-- সংযোগ পেজ -->
 <div class="page active pb" id="page-connect">
   <div style="height:14px"></div>
+
   <div class="card">
     <div class="card-title">🔗 সার্ভার সংযোগ</div>
     <input type="text" id="serverUrl" value="https://mt-universal-hub.onrender.com">
-    <button class="btn btn-blue" id="connectBtn" onclick="toggleConnect()">সংযুক্ত হন</button>
+    <button class="btn btn-cyan" id="connectBtn" onclick="toggleConnect()">সংযুক্ত হন</button>
   </div>
 
   <div class="card">
@@ -270,12 +343,14 @@ input[type=text]:focus { border-color: #4f8ef7; }
 
   <div class="card">
     <div class="card-title">ℹ️ ব্যবহার পদ্ধতি</div>
-    <div style="font-size:13px; color:#777; line-height:2;">
-      ১. উপরের বাটন চেপে সার্ভারে সংযুক্ত হন<br>
+    <div style="font-size:13px; color:#666; line-height:2.2;">
+      ১. সার্ভারে সংযুক্ত হন<br>
       ২. পরিবারের ফোনে FamilySupport app খুলুন<br>
       ৩. Accessibility Service চালু করুন<br>
       ৪. "কন্ট্রোল" পেজে গিয়ে স্ক্রিনে ট্যাপ করুন
     </div>
+    <div class="divider"></div>
+    <div style="font-size:11px; color:#333; text-align:center;">Powered by MT Studio · Digital Solutions</div>
   </div>
 </div>
 
@@ -286,7 +361,7 @@ input[type=text]:focus { border-color: #4f8ef7; }
   <div class="screen-wrap" id="screenWrap" onclick="handleClick(event)">
     <div class="screen-placeholder" id="placeholder">
       <div class="big">📵</div>
-      <div>সংযুক্ত হলে এখানে ট্যাপ করুন</div>
+      <div style="color:#333">সংযুক্ত হলে এখানে ট্যাপ করুন</div>
     </div>
   </div>
 
@@ -431,7 +506,7 @@ function connect() {
     setOnline(false);
     stopTimer();
     document.getElementById('connectBtn').textContent = 'সংযুক্ত হন';
-    document.getElementById('connectBtn').className = 'btn btn-blue';
+    document.getElementById('connectBtn').className = 'btn btn-cyan';
     document.getElementById('sessId').textContent = '—';
     log('❌ সংযোগ বিচ্ছিন্ন', 'e');
   });
@@ -447,7 +522,7 @@ function disconnect() {
   setOnline(false);
   stopTimer();
   document.getElementById('connectBtn').textContent = 'সংযুক্ত হন';
-  document.getElementById('connectBtn').className = 'btn btn-blue';
+  document.getElementById('connectBtn').className = 'btn btn-cyan';
 }
 
 function sendClick(x, y) {
@@ -456,7 +531,6 @@ function sendClick(x, y) {
     showPage('connect');
     return;
   }
-  // APK এর event name অনুযায়ী: child-execute-command
   socket.emit('child-execute-command', { action: 'click', x, y });
   clicks++;
   document.getElementById('clickCnt').textContent = clicks;
