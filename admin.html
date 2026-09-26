@@ -95,6 +95,22 @@
   .chk{display:flex;align-items:center;gap:9px;font-size:.79rem;color:var(--txt-70);cursor:pointer;flex-basis:100%;}
   .chk input{width:16px;height:16px;accent-color:var(--jade);cursor:pointer;flex:none;}
   .fixrow{display:flex;align-items:center;gap:9px;flex-basis:100%;border-top:1px dashed var(--line-2);padding-top:11px;margin-top:2px;flex-wrap:wrap;}
+  .secttl{font-family:var(--fd);font-size:.78rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--txt-35);margin:22px 0 10px;}
+  .secttl:first-child{margin-top:0;}
+  .newbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;}
+  .newbar .note{width:auto;flex:1;min-width:180px;}
+  .new-don{display:none;border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);padding:16px;margin-bottom:14px;}
+  .new-don.open{display:block;}
+  .new-don .nd-title{font-family:var(--fd);font-size:.95rem;font-weight:700;margin-bottom:12px;}
+  .egrid{display:grid;grid-template-columns:1fr;gap:10px;}
+  .egrid label{display:block;font-size:.74rem;color:var(--txt-35);margin-bottom:0;}
+  .egrid input{width:100%;padding:10px 12px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--bg);color:var(--txt);font-family:var(--fb);font-size:.88rem;margin-top:5px;}
+  .egrid input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,169,97,.12);}
+  @media(min-width:620px){.egrid{grid-template-columns:1fr 1fr;}}
+  .editbox{display:none;margin-top:14px;border-top:1px dashed var(--line-2);padding-top:13px;}
+  .editbox.open{display:block;}
+  .ebtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .chk{margin-top:12px;}
 
   /* tabs */
   .tabs{display:flex;gap:2px;margin-top:26px;border-bottom:1px solid var(--line-2);overflow-x:auto;-webkit-overflow-scrolling:touch;}
@@ -213,6 +229,11 @@
         <input type="number" id="donorFix" inputmode="numeric" step="1" min="0" placeholder="সংখ্যা লিখুন">
         <button class="btn btn-ghost" id="donorFixBtn" type="button">সংখ্যাটা সেট করুন</button>
       </div>
+      <div class="fixrow">
+        <span class="lbl">ব্যালেন্স সরাসরি সেট করুন</span>
+        <input type="number" id="balFix" inputmode="numeric" step="1" min="0" placeholder="সংখ্যা লিখুন">
+        <button class="btn btn-ghost" id="balFixBtn" type="button">ব্যালেন্স সেট করুন</button>
+      </div>
     </div>
 
     <div class="tabs" role="tablist" aria-label="অ্যাডমিন বিভাগ">
@@ -222,8 +243,33 @@
     </div>
 
     <div class="panel active" id="panel-apps" role="tabpanel"></div>
-    <div class="panel" id="panel-dons" role="tabpanel"></div>
-    <div class="panel" id="panel-history" role="tabpanel"></div>
+    <div class="panel" id="panel-dons" role="tabpanel">
+      <div class="newbar">
+        <button class="btn btn-jade" id="newDonToggle" type="button" aria-expanded="false" aria-controls="newDonBox">+ নতুন দান যোগ করুন</button>
+        <p class="note">হাতে বা ব্যাংকে পাওয়া টাকা রেকর্ডসহ যোগ করতে, বা ভুলে যাওয়া দান লিখে রাখতে ব্যবহার করুন।</p>
+      </div>
+      <div class="new-don" id="newDonBox">
+        <p class="nd-title">হাতে পাওয়া দানের এন্ট্রি</p>
+        <div class="egrid">
+          <label>দাতার নাম<input type="text" id="ndName" placeholder="না দিলে অজ্ঞাত লেখা হবে"></label>
+          <label>মোবাইল নম্বর<input type="tel" id="ndPhone" inputmode="numeric" placeholder="01XXXXXXXXX"></label>
+          <label>টাকার পরিমাণ<input type="number" id="ndAmount" inputmode="numeric" step="1" min="1" placeholder="পরিমাণ লিখুন"></label>
+          <label>রেফারেন্স / TrxID<input type="text" id="ndTrx" placeholder="থাকলে লিখুন"></label>
+        </div>
+        <label class="chk" for="ndAsDonor"><input type="checkbox" id="ndAsDonor" checked> একজন দাতা হিসেবে গুনুন</label>
+        <div class="ebtns">
+          <button class="btn btn-jade" id="ndSave" type="button">যোগ করুন</button>
+          <button class="btn btn-ghost" id="ndCancel" type="button">বাতিল</button>
+        </div>
+      </div>
+      <div id="donList"></div>
+    </div>
+    <div class="panel" id="panel-history" role="tabpanel">
+      <p class="secttl">আবেদনের সিদ্ধান্ত</p>
+      <div id="histList"></div>
+      <p class="secttl">দানের রেকর্ড</p>
+      <div id="donHistList"></div>
+    </div>
   </main>
 </div>
 
@@ -268,19 +314,79 @@
   }
   function esc(v){ return String(v === undefined || v === null ? '' : v).replace(/[&<>"']/g, function(c){
     return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
+  function digits(v){ return String(v === undefined || v === null ? '' : v).replace(/[^0-9]/g, ''); }
   function showToast(m){
-    var t = $('toast'); t.textContent = m; t.classList.add('show');
-    clearTimeout(showToast._t); showToast._t = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+    var t = $('toast'); if(!t){ return; } t.textContent = m; t.classList.add('show');
+    clearTimeout(showToast._t); showToast._t = setTimeout(function(){ t.classList.remove('show'); }, 3400);
   }
   function fail(where, err){
     console.error(where, err);
     showToast('কাজটা সম্পন্ন হয়নি — ' + (err && err.message ? err.message : 'অজানা সমস্যা'));
   }
 
-  /* ---------------- Auth ---------------- */
+  /* ---------- small builders ---------- */
+  function fld(label, name, value, type){
+    var t = type || 'text';
+    var extra = (t === 'number') ? ' inputmode="numeric" step="1" min="0"' : '';
+    return '<label>' + label + '<input type="' + t + '" data-field="' + name + '" value="' + esc(value || '') + '"' + extra + '></label>';
+  }
+  function toggleBox(id){
+    var box = $(id); if(!box){ return; }
+    var open = box.classList.contains('open');
+    var panel = box.closest('.panel');
+    if(panel){
+      Array.prototype.forEach.call(panel.querySelectorAll('.editbox.open'), function(b){ if(b !== box){ b.classList.remove('open'); } });
+    }
+    box.classList.toggle('open', !open);
+    if(!open){ var f = box.querySelector('input'); if(f){ f.focus(); } }
+  }
+  function closeBox(id){ var box = $(id); if(box){ box.classList.remove('open'); } }
+
+  var PHONE_RE = /^01[3-9][0-9]{8}$/;
+
+  function saveFields(col, id, label, btn){
+    var box = $('eb-' + col + '-' + id);
+    if(!box){ return; }
+    var inputs = box.querySelectorAll('[data-field]');
+    var upd = {}, bad = null;
+    for(var i = 0; i < inputs.length; i++){
+      var f = inputs[i].getAttribute('data-field');
+      var raw = inputs[i].value.trim();
+      if(f === 'amount'){
+        var n = Number(raw);
+        if(!Number.isInteger(n) || n < 1){ bad = 'পরিমাণ ১ বা তার বেশি পূর্ণ সংখ্যা হতে হবে'; inputs[i].focus(); break; }
+        upd[f] = n;
+      } else if(f === 'phone' || f === 'bkash'){
+        var d = digits(raw);
+        if(d && !PHONE_RE.test(d)){ bad = 'মোবাইল নম্বরটা ১১ সংখ্যার হতে হবে (যেমন 01712345678)'; inputs[i].focus(); break; }
+        upd[f] = d;
+      } else if(f === 'trxId'){
+        upd[f] = raw.toUpperCase();
+      } else {
+        if(f === 'name' && !raw){ bad = 'নাম ফাঁকা রাখা যাবে না'; inputs[i].focus(); break; }
+        upd[f] = raw;
+      }
+    }
+    if(bad){ showToast(bad); return; }
+    if(!window.confirm(label + 'র তথ্য সেভ করবেন?')) return;
+    btn.disabled = true;
+    db.collection(col).doc(id).update(upd)
+      .then(function(){ showToast('সেভ হয়েছে'); })
+      .catch(function(e){ fail('save ' + col, e); btn.disabled = false; });
+  }
+
+  function delDoc(col, id, label, extraMsg){
+    var msg = 'এই ' + label + 'টা স্থায়ীভাবে মুছে ফেলবেন?' + (extraMsg ? '\n\n' + extraMsg : '');
+    if(!window.confirm(msg)) return;
+    db.collection(col).doc(id).delete()
+      .then(function(){ showToast(label + 'টা মুছে ফেলা হয়েছে'); })
+      .catch(function(e){ fail('delete ' + col, e); });
+  }
+
+  /* ---------- auth ---------- */
   var loginBusy = false;
   function doLogin(){
-    if(loginBusy) return;
+    if(loginBusy){ return; }
     var email = $('loginEmail').value.trim();
     var pass = $('loginPass').value;
     var errEl = $('loginErr');
@@ -301,9 +407,7 @@
   }
   $('loginBtn').addEventListener('click', doLogin);
   $('loginPass').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ doLogin(); } });
-  $('logoutBtn').addEventListener('click', function(){
-    auth.signOut().catch(function(e){ fail('signOut', e); });
-  });
+  $('logoutBtn').addEventListener('click', function(){ auth.signOut().catch(function(e){ fail('signOut', e); }); });
 
   var unsubs = [];
   function stopListeners(){
@@ -322,11 +426,11 @@
       stopListeners();
       $('loginView').style.display = 'flex';
       $('appView').style.display = 'none';
-      ['panel-apps','panel-dons','panel-history'].forEach(function(id){ $(id).innerHTML = ''; });
+      ['panel-apps','donList','histList','donHistList'].forEach(function(id){ var el = $(id); if(el){ el.innerHTML = ''; } });
     }
   });
 
-  /* ---------------- Tabs ---------------- */
+  /* ---------- tabs ---------- */
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
   tabs.forEach(function(btn){
     btn.addEventListener('click', function(){
@@ -336,12 +440,8 @@
       $('panel-' + btn.getAttribute('data-tab')).classList.add('active');
     });
   });
-  function showTab(name){
-    var btn = tabs.filter(function(b){ return b.getAttribute('data-tab') === name; })[0];
-    if(btn){ btn.click(); }
-  }
 
-  /* ---------------- Fund ---------------- */
+  /* ---------- fund ---------- */
   var balanceCache = 0;
   function loadFund(){
     unsubs.push(db.collection('fund').doc('summary').onSnapshot(function(doc){
@@ -362,33 +462,13 @@
   $('adjCancel').addEventListener('click', function(){
     $('adjustBox').classList.remove('open');
     $('adjustToggle').setAttribute('aria-expanded','false');
-    $('adjAmount').value = '';
-    $('donorFix').value = '';
-  });
-
-  $('donorFixBtn').addEventListener('click', function(){
-    var n = Number($('donorFix').value);
-    if(!Number.isInteger(n) || n < 0){
-      showToast('০ বা তার বেশি পূর্ণ সংখ্যা লিখুন');
-      return;
-    }
-    if(!window.confirm('মোট দাতার সংখ্যা ' + bn(n) + ' করে সেট করবেন?')) return;
-    db.collection('fund').doc('summary').set({ totalDonors: n }, { merge: true })
-      .then(function(){ showToast('মোট দাতার সংখ্যা ' + bn(n) + ' করা হয়েছে'); $('donorFix').value = ''; })
-      .catch(function(e){ fail('donor count fix', e); });
+    $('adjAmount').value = ''; $('donorFix').value = ''; $('balFix').value = '';
   });
 
   function adjustBalance(sign){
-    var raw = $('adjAmount').value;
-    var amt = Number(raw);
-    if(!Number.isInteger(amt) || amt <= 0){
-      showToast('পূর্ণ সংখ্যায় পরিমাণ লিখুন — যেমন 5000');
-      return;
-    }
-    if(sign < 0 && amt > balanceCache){
-      showToast('তহবিলে আছে মাত্র ' + bnMoney(balanceCache) + ' টাকা — এর বেশি বিয়োগ করা যাবে না।');
-      return;
-    }
+    var amt = Number($('adjAmount').value);
+    if(!Number.isInteger(amt) || amt <= 0){ showToast('পূর্ণ সংখ্যায় পরিমাণ লিখুন — যেমন 5000'); return; }
+    if(sign < 0 && amt > balanceCache){ showToast('তহবিলে আছে মাত্র ' + bnMoney(balanceCache) + ' টাকা — এর বেশি বিয়োগ করা যাবে না।'); return; }
     var asDonor = (sign > 0) && $('adjAsDonor').checked;
     var label = sign > 0 ? 'যোগ' : 'বিয়োগ';
     if(!window.confirm('তহবিলে ' + bnMoney(amt) + ' টাকা ' + label + ' করবেন?' + (asDonor ? ' (একজন দাতাও যোগ হবেন)' : ''))) return;
@@ -404,7 +484,156 @@
   $('adjAdd').addEventListener('click', function(){ adjustBalance(1); });
   $('adjSub').addEventListener('click', function(){ adjustBalance(-1); });
 
-  /* ---------------- Applications ---------------- */
+  $('donorFixBtn').addEventListener('click', function(){
+    var n = Number($('donorFix').value);
+    if(!Number.isInteger(n) || n < 0){ showToast('০ বা তার বেশি পূর্ণ সংখ্যা লিখুন'); return; }
+    if(!window.confirm('মোট দাতার সংখ্যা ' + bn(n) + ' করে সেট করবেন?')) return;
+    db.collection('fund').doc('summary').set({ totalDonors: n }, { merge: true })
+      .then(function(){ showToast('মোট দাতার সংখ্যা ' + bn(n) + ' করা হয়েছে'); $('donorFix').value = ''; })
+      .catch(function(e){ fail('donor count fix', e); });
+  });
+
+  $('balFixBtn').addEventListener('click', function(){
+    var n = Number($('balFix').value);
+    if(!Number.isInteger(n) || n < 0){ showToast('০ বা তার বেশি পূর্ণ সংখ্যা লিখুন'); return; }
+    if(!window.confirm('তহবিলের ব্যালেন্স সরাসরি ' + bnMoney(n) + ' টাকা করে সেট করবেন?')) return;
+    db.collection('fund').doc('summary').set({ totalBalance: n }, { merge: true })
+      .then(function(){ showToast('ব্যালেন্স ' + bnMoney(n) + ' টাকা করা হয়েছে'); $('balFix').value = ''; })
+      .catch(function(e){ fail('balance fix', e); });
+  });
+
+  function setDonors(n, done){
+    if(!Number.isInteger(n) || n < 0){ showToast('সংখ্যাটা ০ বা তার বেশি হবে'); return; }
+    db.collection('fund').doc('summary').set({ totalDonors: n }, { merge: true })
+      .then(function(){ showToast('দাতার সংখ্যা ' + bn(n) + ' করা হয়েছে'); if(done){ done(); } })
+      .catch(function(e){ fail('donor set', e); });
+  }
+
+  /* ---------- shared CRUD (edit / save / delete / restore) ---------- */
+  var COLL_LABEL = { recipients: 'আবেদন', donations: 'দান' };
+
+  document.querySelector('.main').addEventListener('click', function(e){
+    var t = e.target.closest('button');
+    if(!t){ return; }
+    var boxId;
+    if(t.hasAttribute('data-edit')){ toggleBox(t.getAttribute('data-box')); return; }
+    if(t.hasAttribute('data-close')){ closeBox(t.getAttribute('data-close')); return; }
+    if(t.hasAttribute('data-save')){
+      var col = t.getAttribute('data-save');
+      saveFields(col, t.getAttribute('data-id'), COLL_LABEL[col] || 'রেকর্ড', t);
+      return;
+    }
+    if(t.hasAttribute('data-del')){
+      var c2 = t.getAttribute('data-del');
+      delDoc(c2, t.getAttribute('data-id'), COLL_LABEL[c2] || 'রেকর্ড', t.getAttribute('data-warn') || '');
+      return;
+    }
+    if(t.hasAttribute('data-restore')){
+      var rid = t.getAttribute('data-restore');
+      if(!window.confirm('রেকর্ডটা আবার "অপেক্ষমাণ" হিসেবে ফিরিয়ে আনবেন?')) return;
+      t.disabled = true;
+      db.collection('recipients').doc(rid).update({ status: 'pending', decidedAt: FieldValue.delete() })
+        .then(function(){ showToast('আবার অপেক্ষমাণ হিসেবে ফিরে এসেছে'); })
+        .catch(function(err){ fail('restore', err); t.disabled = false; });
+      return;
+    }
+    if(t.hasAttribute('data-amsave')){
+      saveDisbursed(t.getAttribute('data-amsave'), t);
+      return;
+    }
+    if(t.hasAttribute('data-amsave-don')){
+      saveDonationAmount(t.getAttribute('data-amsave-don'), t);
+      return;
+    }
+    if(t.hasAttribute('data-deldon')){
+      deleteConfirmedDonation(t.getAttribute('data-deldon'), t);
+      return;
+    }
+    void boxId;
+  });
+
+  /* amount correction on a PAID recipient — the fund moves by the difference */
+  function saveDisbursed(id, btn){
+    var box = $('eb-recipients-' + id);
+    if(!box){ return; }
+    var n = Number(box.querySelector('[data-field="disbursedAmount"]').value);
+    if(!Number.isInteger(n) || n < 0){ showToast('০ বা তার বেশি পূর্ণ সংখ্যা লিখুন'); return; }
+    if(!window.confirm('প্রদত্ত পরিমাণ ' + bnMoney(n) + ' টাকা করে ঠিক করবেন? তহবিলের ব্যালেন্স তার হিসাবে বদলে যাবে।')) return;
+    btn.disabled = true;
+    db.runTransaction(function(tx){
+      var appRef = db.collection('recipients').doc(id);
+      var fundRef = db.collection('fund').doc('summary');
+      return tx.get(appRef).then(function(doc){
+        if(!doc.exists){ throw new Error('রেকর্ডটা আর নেই'); }
+        var d = doc.data() || {};
+        if(d.status !== 'paid'){ throw new Error('এটা প্রদত্ত রেকর্ড নয়'); }
+        var delta = n - (Number(d.disbursedAmount) || 0);
+        return tx.get(fundRef).then(function(fd){
+          var bal = Number((fd.data() || {}).totalBalance) || 0;
+          if(delta > bal){ throw new Error('তহবিলে পর্যাপ্ত ব্যালেন্স নেই (আছে ' + bnMoney(bal) + ' টাকা)'); }
+          tx.update(appRef, { disbursedAmount: n });
+          if(delta !== 0){ tx.update(fundRef, { totalBalance: FieldValue.increment(-delta) }); }
+        });
+      });
+    }).then(function(){ showToast('পরিমাণ ঠিক করা হয়েছে'); })
+      .catch(function(err){ fail('fix disbursed amount', err); btn.disabled = false; });
+  }
+
+  /* amount correction on a CONFIRMED donation — fund moves by the difference */
+  function saveDonationAmount(id, btn){
+    var box = $('eb-donations-' + id);
+    if(!box){ return; }
+    var n = Number(box.querySelector('[data-field="amount"]').value);
+    if(!Number.isInteger(n) || n < 1){ showToast('পরিমাণ ১ বা তার বেশি পূর্ণ সংখ্যা হতে হবে'); return; }
+    if(!window.confirm('দানের পরিমাণ ' + bnMoney(n) + ' টাকা করে ঠিক করবেন? তহবিলের ব্যালেন্স তার হিসাবে বদলে যাবে।')) return;
+    btn.disabled = true;
+    db.runTransaction(function(tx){
+      var donRef = db.collection('donations').doc(id);
+      var fundRef = db.collection('fund').doc('summary');
+      return tx.get(donRef).then(function(doc){
+        if(!doc.exists){ throw new Error('দানটা আর নেই'); }
+        var d = doc.data() || {};
+        if(d.status !== 'confirmed'){ throw new Error('এটা নিশ্চিত করা দান নয়'); }
+        var delta = n - (Number(d.amount) || 0);
+        return tx.get(fundRef).then(function(fd){
+          var bal = Number((fd.data() || {}).totalBalance) || 0;
+          if(delta > bal){ throw new Error('তহবিলে পর্যাপ্ত ব্যালেন্স নেই (আছে ' + bnMoney(bal) + ' টাকা)'); }
+          tx.update(donRef, { amount: n });
+          if(delta !== 0){ tx.update(fundRef, { totalBalance: FieldValue.increment(delta) }); }
+        });
+      });
+    }).then(function(){ showToast('দানের পরিমাণ ঠিক করা হয়েছে'); })
+      .catch(function(err){ fail('fix donation amount', err); btn.disabled = false; });
+  }
+
+  /* delete a CONFIRMED donation and put its money back */
+  function deleteConfirmedDonation(id, btn){
+    if(!window.confirm('এই দানটা মুছে ফেলবেন? তহবিল থেকে টাকাটা বাদ যাবে আর দাতার সংখ্যা একটা কমবে।')) return;
+    btn.disabled = true;
+    db.runTransaction(function(tx){
+      var donRef = db.collection('donations').doc(id);
+      var fundRef = db.collection('fund').doc('summary');
+      return tx.get(donRef).then(function(doc){
+        if(!doc.exists){ throw new Error('দানটা আর নেই'); }
+        var d = doc.data() || {};
+        var amt = Number(d.amount) || 0;
+        return tx.get(fundRef).then(function(fd){
+          var f = fd.data() || {};
+          var bal = Number(f.totalBalance) || 0;
+          var donors = Math.round(Number(f.totalDonors) || 0);
+          if(amt > bal){ throw new Error('তহবিলে এত টাকা নেই যে বাদ দেওয়া যাবে (আছে ' + bnMoney(bal) + ' টাকা)'); }
+          tx.delete(donRef);
+          tx.update(fundRef, {
+            totalBalance: FieldValue.increment(-amt),
+            totalDonors: FieldValue.increment(donors > 0 ? -1 : 0)
+          });
+        });
+      });
+    }).then(function(){ showToast('দানটা মুছে ফেলা হয়েছে — টাকাটা তহবিল থেকে বাদ গেছে'); })
+      .catch(function(err){ fail('delete confirmed donation', err); btn.disabled = false; });
+  }
+
+  /* ---------- applications ---------- */
   function loadApps(){
     unsubs.push(db.collection('recipients').where('status','==','pending')
       .onSnapshot(function(snap){
@@ -415,6 +644,7 @@
         sortDocs(snap.docs, 'submittedAt').forEach(function(doc){
           var d = doc.data() || {};
           var addr = [d.village, d.union, d.upazila, d.district, d.division].filter(Boolean).join(', ');
+          var bid = 'eb-recipients-' + doc.id;
           html += '<div class="row">'
             + '<div class="row-head">'
             + (d.photoURL ? '<img class="photo" src="' + esc(d.photoURL) + '" alt="আবেদনকারীর লাইভ ছবি" loading="lazy">' : '<div class="ph-none">ছবি নেই</div>')
@@ -433,18 +663,32 @@
             + '<input type="number" inputmode="numeric" step="1" min="1" placeholder="টাকার পরিমাণ" data-amt-for="' + esc(doc.id) + '">'
             + '<button class="btn btn-jade" data-act="approve" data-id="' + esc(doc.id) + '">অনুমোদন ও অর্থ প্রদান</button>'
             + '<button class="btn btn-rose" data-act="reject" data-id="' + esc(doc.id) + '">বাতিল করুন</button>'
-            + '<p class="note">অনুমোদন করলে তহবিল থেকে টাকা কমবে, আর আবেদনকারীকে সহায়তা-প্রাপ্ত হিসেবে গোনা হবে। তহবিলে পর্যাপ্ত ব্যালেন্স না থাকলে অনুমোদন হবে না।</p>'
-            + '</div></div>';
+            + '<button class="btn btn-ghost" data-edit data-box="' + bid + '">সম্পাদনা</button>'
+            + '<button class="btn btn-rose" data-del="recipients" data-id="' + esc(doc.id) + '" data-warn="আবেদনের রেকর্ডটা পুরোপুরি হারিয়ে যাবে।">মুছুন</button>'
+            + '<p class="note">অনুমোদন করলে তহবিল থেকে টাকা কমবে, আর আবেদনকারীকে সহায়তা-প্রাপ্ত হিসেবে গোনা হবে। "সম্পাদনা" দিয়ে নাম, নম্বর বা ঠিকানা ঠিক করতে পারবেন।</p>'
+            + '</div>'
+            + '<div class="editbox" id="' + bid + '">'
+            + '<div class="egrid">'
+            + fld('নাম', 'name', d.name) + fld('মোবাইল', 'phone', d.phone) + fld('bKash', 'bkash', d.bkash)
+            + fld('স্বামী / স্ত্রী', 'spouseName', d.spouseName) + fld('আত্মীয়', 'relativeName', d.relativeName)
+            + fld('গ্রাম', 'village', d.village) + fld('ওয়ার্ড', 'ward', d.ward) + fld('বাড়ি', 'house', d.house)
+            + '</div>'
+            + '<div class="ebtns">'
+            + '<button class="btn btn-jade" data-save="recipients" data-id="' + esc(doc.id) + '">সেভ করুন</button>'
+            + '<button class="btn btn-ghost" data-close="' + bid + '">বাতিল</button>'
+            + '</div></div>'
+            + '</div>';
         });
         panel.innerHTML = html;
       }, function(err){
-        $('panel-apps').innerHTML = '<p class="muted bad">আবেদন আনা গেল না — ' + esc(err.message) + '</p>';
+        var p = $('panel-apps');
+        if(p){ p.innerHTML = '<p class="muted bad">আবেদন আনা গেল না — ' + esc(err.message) + '</p>'; }
       }));
   }
 
   $('panel-apps').addEventListener('click', function(e){
     var btn = e.target.closest('button[data-act]');
-    if(!btn) return;
+    if(!btn){ return; }
     var id = btn.getAttribute('data-id');
     var act = btn.getAttribute('data-act');
 
@@ -460,15 +704,8 @@
     if(act === 'approve'){
       var input = document.querySelector('[data-amt-for="' + id + '"]');
       var amt = input ? Number(input.value) : NaN;
-      if(!Number.isInteger(amt) || amt <= 0){
-        showToast('কত টাকা দেওয়া হবে — পরিমাণটা লিখুন');
-        if(input){ input.focus(); }
-        return;
-      }
-      if(amt > balanceCache){
-        showToast('তহবিলে আছে মাত্র ' + bnMoney(balanceCache) + ' টাকা — এর বেশি দেওয়া যাবে না।');
-        return;
-      }
+      if(!Number.isInteger(amt) || amt <= 0){ showToast('কত টাকা দেওয়া হবে — পরিমাণটা লিখুন'); if(input){ input.focus(); } return; }
+      if(amt > balanceCache){ showToast('তহবিলে আছে মাত্র ' + bnMoney(balanceCache) + ' টাকা — এর বেশি দেওয়া যাবে না।'); return; }
       if(!window.confirm(bnMoney(amt) + ' টাকা প্রদান করে আবেদনটি অনুমোদন করবেন?')) return;
       btn.disabled = true; btn.textContent = 'প্রক্রিয়া চলছে…';
       db.runTransaction(function(tx){
@@ -480,44 +717,114 @@
           tx.update(appRef, { status: 'paid', disbursedAmount: amt, paidAt: FieldValue.serverTimestamp() });
           tx.update(fundRef, { totalBalance: FieldValue.increment(-amt), totalHelped: FieldValue.increment(1) });
         });
-      }).then(function(){
-        showToast(bnMoney(amt) + ' টাকা প্রদান সম্পন্ন');
-      }).catch(function(err){
-        fail('approve application', err);
-        btn.disabled = false; btn.textContent = 'অনুমোদন ও অর্থ প্রদান';
-      });
+      }).then(function(){ showToast(bnMoney(amt) + ' টাকা প্রদান সম্পন্ন'); })
+        .catch(function(err){ fail('approve application', err); btn.disabled = false; btn.textContent = 'অনুমোদন ও অর্থ প্রদান'; });
     }
   });
 
-  /* ---------------- Donations ---------------- */
+  /* ---------- donations ---------- */
+  $('newDonToggle').addEventListener('click', function(){
+    var box = $('newDonBox');
+    var open = box.classList.toggle('open');
+    this.setAttribute('aria-expanded', String(open));
+    if(open){ $('ndAmount').focus(); }
+  });
+  $('ndCancel').addEventListener('click', function(){
+    $('newDonBox').classList.remove('open');
+    $('newDonToggle').setAttribute('aria-expanded','false');
+    $('ndName').value = ''; $('ndPhone').value = ''; $('ndAmount').value = ''; $('ndTrx').value = '';
+  });
+
+  $('ndSave').addEventListener('click', function(){
+    var amt = Number($('ndAmount').value);
+    if(!Number.isInteger(amt) || amt < 1){ showToast('পরিমাণ ১ বা তার বেশি পূর্ণ সংখ্যা হতে হবে'); $('ndAmount').focus(); return; }
+    var phone = digits($('ndPhone').value);
+    if(phone && !PHONE_RE.test(phone)){ showToast('মোবাইল নম্বরটা ১১ সংখ্যার হতে হবে (যেমন 01712345678)'); $('ndPhone').focus(); return; }
+    var asDonor = $('ndAsDonor').checked;
+    if(!window.confirm(bnMoney(amt) + ' টাকার দান যোগ করবেন?' + (asDonor ? ' (একজন দাতাও যোগ হবেন)' : ''))) return;
+    var btn = this;
+    btn.disabled = true;
+    var newRef = db.collection('donations').doc();
+    var fundRef = db.collection('fund').doc('summary');
+    db.runTransaction(function(tx){
+      return tx.get(fundRef).then(function(){
+        tx.set(newRef, {
+          name: $('ndName').value.trim() || 'অজ্ঞাত',
+          phone: phone,
+          amount: amt,
+          trxId: $('ndTrx').value.trim().toUpperCase(),
+          method: 'bKash',
+          status: 'confirmed',
+          manualEntry: true,
+          createdAt: FieldValue.serverTimestamp(),
+          confirmedAt: FieldValue.serverTimestamp()
+        });
+        var patch = { totalBalance: FieldValue.increment(amt) };
+        if(asDonor){ patch.totalDonors = FieldValue.increment(1); }
+        tx.update(fundRef, patch);
+      });
+    }).then(function(){
+      showToast(bnMoney(amt) + ' টাকার দান যোগ হয়েছে');
+      $('newDonBox').classList.remove('open');
+      $('newDonToggle').setAttribute('aria-expanded','false');
+      $('ndName').value = ''; $('ndPhone').value = ''; $('ndAmount').value = ''; $('ndTrx').value = '';
+    }).catch(function(err){ fail('add manual donation', err); })
+      .then(function(){ btn.disabled = false; });
+  });
+
   function loadDonations(){
     unsubs.push(db.collection('donations').where('status','==','pending')
       .onSnapshot(function(snap){
-        var panel = $('panel-dons');
+        var panel = $('donList');
         $('cntDons').textContent = bn(snap.size);
         if(snap.empty){ panel.innerHTML = '<p class="muted">এখন কোনো অপেক্ষমাণ দান নেই।</p>'; return; }
         var html = '';
         sortDocs(snap.docs, 'createdAt').forEach(function(doc){
           var d = doc.data() || {};
           var when = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+          var bid = 'eb-donations-' + doc.id;
           html += '<div class="row">'
             + '<div class="row-title"><h3>' + esc(d.name || 'অজ্ঞাত') + '</h3><span class="amt">৳ ' + bnMoney(d.amount || 0) + '</span><span class="badge pending">যাচাই বাকি</span></div>'
             + '<p class="meta"><b>মোবাইল</b> ' + esc(d.phone || '—') + ' &nbsp;·&nbsp; <b>TrxID</b> ' + esc(d.trxId || '—') + ' &nbsp;·&nbsp; <b>মাধ্যম</b> ' + esc(d.method || 'bKash') + '</p>'
             + (when ? '<p class="meta">জমা দিয়েছেন — ' + esc(when.toLocaleString('bn-BD')) + '</p>' : '')
             + '<div class="acts">'
             + '<button class="btn btn-jade" data-confirm="' + esc(doc.id) + '" data-amt="' + esc(Number(d.amount) || 0) + '">নিশ্চিত করুন</button>'
-            + '<p class="note">নিশ্চিত করার আগে bKash-এর রেকর্ডে TrxID আর টাকার পরিমাণ মিলিয়ে নিন। নিশ্চিত করলে টাকা তহবিলে যোগ হবে।</p>'
-            + '</div></div>';
+            + '<button class="btn btn-rose" data-dismiss="' + esc(doc.id) + '">বাদ দিন</button>'
+            + '<button class="btn btn-ghost" data-edit data-box="' + bid + '">সম্পাদনা</button>'
+            + '<button class="btn btn-rose" data-del="donations" data-id="' + esc(doc.id) + '" data-warn="রেকর্ডটা পুরোপুরি হারিয়ে যাবে।">মুছুন</button>'
+            + '<p class="note">bKash-এর রেকর্ডে TrxID আর পরিমাণ মিললে "নিশ্চিত করুন" — তহবিলে টাকা যোগ হবে, দাতার সংখ্যাও বাড়বে। "সম্পাদনা" দিয়ে নাম, নম্বর, পরিমাণ বা TrxID ঠিক করতে পারবেন।</p>'
+            + '</div>'
+            + '<div class="editbox" id="' + bid + '">'
+            + '<div class="egrid">'
+            + fld('দাতার নাম', 'name', d.name) + fld('মোবাইল', 'phone', d.phone)
+            + fld('টাকার পরিমাণ', 'amount', d.amount, 'number') + fld('Transaction ID', 'trxId', d.trxId)
+            + '</div>'
+            + '<div class="ebtns">'
+            + '<button class="btn btn-jade" data-save="donations" data-id="' + esc(doc.id) + '">সেভ করুন</button>'
+            + '<button class="btn btn-ghost" data-close="' + bid + '">বাতিল</button>'
+            + '</div></div>'
+            + '</div>';
         });
         panel.innerHTML = html;
       }, function(err){
-        $('panel-dons').innerHTML = '<p class="muted bad">দানের তালিকা আনা গেল না — ' + esc(err.message) + '</p>';
+        var p = $('donList');
+        if(p){ p.innerHTML = '<p class="muted bad">দানের তালিকা আনা গেল না — ' + esc(err.message) + '</p>'; }
       }));
   }
 
   $('panel-dons').addEventListener('click', function(e){
+    var dis = e.target.closest('button[data-dismiss]');
+    if(dis){
+      var did = dis.getAttribute('data-dismiss');
+      if(!window.confirm('এই দানটা তালিকা থেকে বাদ দেবেন? তহবিলে কোনো টাকা যোগ বা বাদ হবে না।')) return;
+      dis.disabled = true; dis.textContent = 'বাদ দেওয়া হচ্ছে…';
+      db.collection('donations').doc(did).update({ status: 'rejected', rejectedAt: FieldValue.serverTimestamp() })
+        .then(function(){ showToast('দানটা বাদ দেওয়া হয়েছে — তহবিলে কিছু যোগ হয়নি'); })
+        .catch(function(err){ fail('dismiss donation', err); dis.disabled = false; dis.textContent = 'বাদ দিন'; });
+      return;
+    }
     var btn = e.target.closest('button[data-confirm]');
-    if(!btn) return;
+    if(!btn){ return; }
     var id = btn.getAttribute('data-confirm');
     var amt = Number(btn.getAttribute('data-amt')) || 0;
     if(!window.confirm(bnMoney(amt) + ' টাকার দানটা তহবিলে যোগ করবেন?')) return;
@@ -528,46 +835,100 @@
         totalBalance: FieldValue.increment(amt),
         totalDonors: FieldValue.increment(1)
       });
-    }).then(function(){
-      showToast(bnMoney(amt) + ' টাকা তহবিলে যোগ হয়েছে');
-    }).catch(function(err){
-      fail('confirm donation', err);
-      btn.disabled = false; btn.textContent = 'নিশ্চিত করুন';
-    });
+    }).then(function(){ showToast(bnMoney(amt) + ' টাকা তহবিলে যোগ হয়েছে'); })
+      .catch(function(err){ fail('confirm donation', err); btn.disabled = false; btn.textContent = 'নিশ্চিত করুন'; });
   });
 
-  /* ---------------- History ---------------- */
+  /* ---------- history ---------- */
   function loadHistory(){
     unsubs.push(db.collection('recipients').where('status','in',['paid','rejected'])
       .onSnapshot(function(snap){
-        var panel = $('panel-history');
-        $('cntHist').textContent = bn(Math.min(snap.size, 40));
+        var panel = $('histList');
+        $('cntHist').textContent = bn(snap.size);
         if(snap.empty){ panel.innerHTML = '<p class="muted">এখনো কোনো সিদ্ধান্তের ইতিহাস নেই।</p>'; return; }
         var html = '';
         sortDocs(snap.docs, 'submittedAt').slice(0, 40).forEach(function(doc){
           var d = doc.data() || {};
           var paid = d.status === 'paid';
           var when = d.paidAt && d.paidAt.toDate ? d.paidAt.toDate() : (d.decidedAt && d.decidedAt.toDate ? d.decidedAt.toDate() : null);
+          var bid = 'eb-recipients-' + doc.id;
           html += '<div class="row">'
             + '<div class="row-title"><h3>' + esc(d.name || 'নাম নেই') + '</h3>'
             + '<span class="badge ' + (paid ? 'paid' : 'rejected') + '">' + (paid ? 'সহায়তা প্রদান সম্পন্ন' : 'বাতিল হয়েছে') + '</span>'
             + (paid ? '<span class="amt">৳ ' + bnMoney(d.disbursedAmount || 0) + '</span>' : '')
             + '</div>'
             + '<p class="meta"><b>মোবাইল</b> ' + esc(d.phone || '—') + (when ? ' &nbsp;·&nbsp; ' + esc(when.toLocaleString('bn-BD')) : '') + '</p>'
+            + '<div class="acts">'
+            + (paid
+                ? '<button class="btn btn-ghost" data-edit data-box="' + bid + '">পরিমাণ সংশোধন</button>'
+                : '<button class="btn btn-ghost" data-restore="' + esc(doc.id) + '">আবার অপেক্ষমাণ করুন</button>')
+            + '<button class="btn btn-rose" data-del="recipients" data-id="' + esc(doc.id) + '" data-warn="শুধু রেকর্ডটা মুছে যাবে — তহবিলের ব্যালেন্স নিজে থেকে বদলাবে না। টাকা ঠিক করতে হলে উপরের "ব্যালেন্স সমন্বয়" ব্যবহার করুন।">মুছুন</button>'
+            + '</div>'
+            + (paid
+                ? '<div class="editbox" id="' + bid + '"><div class="egrid">'
+                  + fld('প্রদত্ত টাকার পরিমাণ', 'disbursedAmount', d.disbursedAmount, 'number')
+                  + '</div><div class="ebtns">'
+                  + '<button class="btn btn-jade" data-amsave="' + esc(doc.id) + '">পরিমাণ সেভ করুন</button>'
+                  + '<button class="btn btn-ghost" data-close="' + bid + '">বাতিল</button>'
+                  + '</div></div>'
+                : '')
             + '</div>';
         });
         panel.innerHTML = html;
       }, function(err){
-        $('panel-history').innerHTML = '<p class="muted bad">ইতিহাস আনা গেল না — ' + esc(err.message) + '</p>';
+        var p = $('histList');
+        if(p){ p.innerHTML = '<p class="muted bad">ইতিহাস আনা গেল না — ' + esc(err.message) + '</p>'; }
+      }));
+  }
+
+  function loadDonationHistory(){
+    unsubs.push(db.collection('donations').where('status','in',['confirmed','rejected'])
+      .onSnapshot(function(snap){
+        var panel = $('donHistList');
+        if(!panel){ return; }
+        if(snap.empty){ panel.innerHTML = '<p class="muted">এখনো কোনো দানের রেকর্ড নেই।</p>'; return; }
+        var html = '';
+        sortDocs(snap.docs, 'createdAt').slice(0, 40).forEach(function(doc){
+          var d = doc.data() || {};
+          var ok = d.status === 'confirmed';
+          var when = d.confirmedAt && d.confirmedAt.toDate ? d.confirmedAt.toDate() : (d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null);
+          var bid = 'eb-donations-' + doc.id;
+          html += '<div class="row">'
+            + '<div class="row-title"><h3>' + esc(d.name || 'অজ্ঞাত') + '</h3>'
+            + '<span class="badge ' + (ok ? 'paid' : 'rejected') + '">' + (ok ? 'নিশ্চিত হয়েছে' : 'বাদ দেওয়া') + '</span>'
+            + (ok ? '<span class="amt">৳ ' + bnMoney(d.amount || 0) + '</span>' : '')
+            + '</div>'
+            + '<p class="meta"><b>মোবাইল</b> ' + esc(d.phone || '—') + ' &nbsp;·&nbsp; <b>TrxID</b> ' + esc(d.trxId || '—')
+            + (d.manualEntry ? ' &nbsp;·&nbsp; <b>সরাসরি এন্ট্রি</b>' : '')
+            + (when ? ' &nbsp;·&nbsp; ' + esc(when.toLocaleString('bn-BD')) : '') + '</p>'
+            + '<div class="acts">'
+            + (ok ? '<button class="btn btn-ghost" data-edit data-box="' + bid + '">পরিমাণ সংশোধন</button>' : '')
+            + '<button class="btn btn-rose" data-deldon="' + esc(doc.id) + '">মুছুন ও টাকা ফেরান</button>'
+            + '<p class="note">"মুছুন ও টাকা ফেরান" চাপলে তহবিল থেকে ওই পরিমাণ বাদ যাবে আর দাতার সংখ্যা একটা কমবে।</p>'
+            + '</div>'
+            + (ok
+                ? '<div class="editbox" id="' + bid + '"><div class="egrid">'
+                  + fld('দানের পরিমাণ', 'amount', d.amount, 'number')
+                  + '</div><div class="ebtns">'
+                  + '<button class="btn btn-jade" data-amsave-don="' + esc(doc.id) + '">পরিমাণ সেভ করুন</button>'
+                  + '<button class="btn btn-ghost" data-close="' + bid + '">বাতিল</button>'
+                  + '</div></div>'
+                : '')
+            + '</div>';
+        });
+        panel.innerHTML = html;
+      }, function(err){
+        var p = $('donHistList');
+        if(p){ p.innerHTML = '<p class="muted bad">দানের রেকর্ড আনা গেল না — ' + esc(err.message) + '</p>'; }
       }));
   }
 
   function loadAll(){
     stopListeners();
-    loadFund(); loadApps(); loadDonations(); loadHistory();
+    loadFund(); loadApps(); loadDonations(); loadHistory(); loadDonationHistory();
   }
   window.addEventListener('pagehide', stopListeners);
-  void showTab;
+  void setDonors;
 })();
 </script>
 </body>
