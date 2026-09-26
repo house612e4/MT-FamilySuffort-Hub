@@ -237,6 +237,15 @@
     if(rest){ last3 = ',' + last3; rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ','); }
     return bn(rest + last3);
   }
+  function timeOf(v){
+    if(!v){ return 0; }
+    if(typeof v.toMillis === 'function'){ return v.toMillis(); }
+    if(typeof v.seconds === 'number'){ return v.seconds * 1000; }
+    return 0;
+  }
+  function sortDocs(docs, field){
+    return docs.slice().sort(function(a, b){ return timeOf(b.data()[field]) - timeOf(a.data()[field]); });
+  }
   function esc(v){ return String(v === undefined || v === null ? '' : v).replace(/[&<>"']/g, function(c){
     return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); }
   function showToast(m){
@@ -361,13 +370,13 @@
 
   /* ---------------- Applications ---------------- */
   function loadApps(){
-    unsubs.push(db.collection('recipients').where('status','==','pending').orderBy('submittedAt','desc')
+    unsubs.push(db.collection('recipients').where('status','==','pending')
       .onSnapshot(function(snap){
         var panel = $('panel-apps');
         $('cntApps').textContent = bn(snap.size);
         if(snap.empty){ panel.innerHTML = '<p class="muted">এখন কোনো অপেক্ষমাণ আবেদন নেই।</p>'; return; }
         var html = '';
-        snap.forEach(function(doc){
+        sortDocs(snap.docs, 'submittedAt').forEach(function(doc){
           var d = doc.data() || {};
           var addr = [d.village, d.union, d.upazila, d.district, d.division].filter(Boolean).join(', ');
           html += '<div class="row">'
@@ -446,13 +455,13 @@
 
   /* ---------------- Donations ---------------- */
   function loadDonations(){
-    unsubs.push(db.collection('donations').where('status','==','pending').orderBy('createdAt','desc')
+    unsubs.push(db.collection('donations').where('status','==','pending')
       .onSnapshot(function(snap){
         var panel = $('panel-dons');
         $('cntDons').textContent = bn(snap.size);
         if(snap.empty){ panel.innerHTML = '<p class="muted">এখন কোনো অপেক্ষমাণ দান নেই।</p>'; return; }
         var html = '';
-        snap.forEach(function(doc){
+        sortDocs(snap.docs, 'createdAt').forEach(function(doc){
           var d = doc.data() || {};
           var when = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
           html += '<div class="row">'
@@ -493,13 +502,13 @@
 
   /* ---------------- History ---------------- */
   function loadHistory(){
-    unsubs.push(db.collection('recipients').where('status','in',['paid','rejected']).orderBy('submittedAt','desc').limit(40)
+    unsubs.push(db.collection('recipients').where('status','in',['paid','rejected'])
       .onSnapshot(function(snap){
         var panel = $('panel-history');
-        $('cntHist').textContent = bn(snap.size);
+        $('cntHist').textContent = bn(Math.min(snap.size, 40));
         if(snap.empty){ panel.innerHTML = '<p class="muted">এখনো কোনো সিদ্ধান্তের ইতিহাস নেই।</p>'; return; }
         var html = '';
-        snap.forEach(function(doc){
+        sortDocs(snap.docs, 'submittedAt').slice(0, 40).forEach(function(doc){
           var d = doc.data() || {};
           var paid = d.status === 'paid';
           var when = d.paidAt && d.paidAt.toDate ? d.paidAt.toDate() : (d.decidedAt && d.decidedAt.toDate ? d.decidedAt.toDate() : null);
