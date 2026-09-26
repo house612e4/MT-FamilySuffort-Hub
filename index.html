@@ -1,40 +1,336 @@
-গ
-গোলাপি ফাউন্ডেশন
-মানুষ মানুষের জন্য
-গোলাপি ফাউন্ডেশন একটি মানবিক উদ্যোগ — যেখানে আপনার দান সরাসরি অসহায় মানুষের পাশে পৌঁছায়, যাচাই করে, স্বচ্ছভাবে।
-প্রতিষ্ঠাতা — মোঃ মহসিন
-তহবিলে বর্তমান ব্যালেন্স
-০ টাকা
-০
-জনকে সহায়তা
-০
-জন দাতা
-দান করুন
-bKash বা ব্যাংকে টাকা পাঠিয়ে নিচের ফর্মে Transaction ID লিখুন। আমাদের টিম মিলিয়ে নিশ্চিত করবে।
-bKash (Send Money)
-01311-28584
-কপি করুন
-ব্যাংক একাউন্ট শীঘ্রই যুক্ত হবে।
-আপনার নাম (না লিখলে "অজ্ঞাত" দেখানো হবে)
-মোবাইল নাম্বার
-টাকার পরিমাণ
-bKash Transaction ID
-দান নিশ্চিত করুন
-যেভাবে কাজ করে
-১
-দান জমা হয়
-আপনার পাঠানো টাকা যাচাই হয়ে তহবিলে যুক্ত হয়।
-২
-আবেদন যাচাই
-সহায়তাপ্রার্থীর তথ্য ও পরিচয় ৭২ ঘন্টার মধ্যে সরেজমিনে যাচাই করা হয়।
-৩
-সহায়তা পৌঁছায়
-যাচাই শেষে bKash বা ব্যাংকে সরাসরি টাকা পাঠানো হয়।
-সহায়তা প্রয়োজন?
-নিজের প্রোফাইল তৈরি করুন
-নাম, ঠিকানা ও একটি লাইভ ছবি দিয়ে আবেদন করুন। আমাদের টিম যাচাই করে ৭২ ঘন্টার মধ্যে জানাবে।
-আবেদন ফর্ম পূরণ করুন
-"এমনভাবে দান করো, যেন ডান হাতের দান বাম হাত টের না পায়।"
-দাতা ও গ্রহীতা একে অপরের কাছে সবসময় অপ্রকাশিত থাকবেন — এটাই গোলাপি ফাউন্ডেশনের নীতি।
-© গোলাপি ফাউন্ডেশন — প্রতিষ্ঠাতা মোঃ মহসিন
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>গোলাপি ফাউন্ডেশন</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF7F5;
+    --ink:#241A1D;
+    --rose:#B23A5C;
+    --rose-deep:#8C2C48;
+    --tint:#F3DEE3;
+    --gold:#C9A961;
+    --green:#4A6B58;
+    --line: rgba(36,26,29,0.14);
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1B1416;
+      --ink:#F3E9EA;
+      --tint:#2E2024;
+      --line: rgba(243,233,234,0.16);
+    }
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Hind Siliguri',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:'Noto Serif Bengali',serif;}
+  .wrap{max-width:640px;margin:0 auto;padding:0 22px;}
+  a{color:inherit;}
 
+  /* header */
+  header{padding:22px 0 6px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:34px;height:34px;border-radius:50%;background:var(--rose);flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+  .brand-name{font-weight:600;font-size:17px;}
+
+  /* hero */
+  .hero{padding:34px 0 8px;}
+  .hero h1{font-size:34px;line-height:1.28;font-weight:600;max-width:11ch;}
+  .hero p{margin-top:14px;font-size:16px;color:color-mix(in srgb, var(--ink) 78%, transparent);max-width:38ch;}
+  .founder{margin-top:16px;font-size:14px;color:color-mix(in srgb, var(--ink) 62%, transparent);}
+  .founder b{color:var(--rose-deep);font-weight:600;}
+
+  /* fund ledger card */
+  .ledger{
+    margin-top:28px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:24px 22px;
+    position:relative;
+    background:linear-gradient(180deg, color-mix(in srgb, var(--tint) 55%, transparent), transparent 60%);
+  }
+  .ledger::before{
+    content:"";position:absolute;top:0;left:22px;right:22px;height:1px;
+    background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px);
+  }
+  .ledger-label{font-size:13px;color:color-mix(in srgb, var(--ink) 60%, transparent);}
+  .ledger-amount{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:4px;color:var(--rose-deep);}
+  .ledger-amount span{font-size:20px;font-weight:600;margin-left:4px;}
+  .ledger-row{display:flex;justify-content:space-between;margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:14px;}
+  .ledger-row div{text-align:center;flex:1;}
+  .ledger-row strong{display:block;font-size:20px;font-weight:700;}
+  .ledger-row span{color:color-mix(in srgb, var(--ink) 60%, transparent);font-size:12.5px;}
+
+  /* sections */
+  section{padding:38px 0;border-top:1px solid var(--line);}
+  section h2{font-size:22px;font-weight:600;}
+  .lede{margin-top:8px;font-size:15px;color:color-mix(in srgb, var(--ink) 70%, transparent);max-width:40ch;}
+
+  /* donate */
+  .pay-box{margin-top:20px;border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+  .pay-row{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;}
+  .pay-row + .pay-row{border-top:1px solid var(--line);}
+  .pay-method{font-size:13px;color:color-mix(in srgb, var(--ink) 60%, transparent);}
+  .pay-number{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px;}
+  .copy-btn{border:1px solid var(--line);background:transparent;color:var(--ink);padding:8px 14px;border-radius:100px;font-family:inherit;font-size:13px;cursor:pointer;white-space:nowrap;}
+  .copy-btn:active{background:var(--tint);}
+  .pay-note{padding:14px 18px;font-size:13px;color:color-mix(in srgb, var(--ink) 60%, transparent);background:color-mix(in srgb, var(--tint) 45%, transparent);}
+
+  form{margin-top:22px;display:flex;flex-direction:column;gap:12px;}
+  .field label{display:block;font-size:13px;color:color-mix(in srgb, var(--ink) 65%, transparent);margin-bottom:6px;}
+  .field input,.field select{
+    width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:4px;
+    background:var(--paper);color:var(--ink);font-family:inherit;font-size:15px;
+  }
+  .field input:focus,.field select:focus,.copy-btn:focus-visible,button:focus-visible{outline:2px solid var(--rose);outline-offset:2px;}
+  .submit-btn{
+    margin-top:6px;padding:15px 18px;border:none;border-radius:4px;background:var(--rose);color:#fff;
+    font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:transform .15s ease;
+  }
+  .submit-btn:active{transform:scale(.98);}
+  .submit-btn:disabled{opacity:.55;}
+  .form-msg{font-size:14px;padding:12px 14px;border-radius:4px;display:none;}
+  .form-msg.ok{display:block;background:color-mix(in srgb, var(--green) 15%, transparent);color:var(--green);}
+  .form-msg.err{display:block;background:color-mix(in srgb, var(--rose) 12%, transparent);color:var(--rose-deep);}
+
+  /* how it works */
+  .steps{margin-top:20px;display:flex;flex-direction:column;gap:0;}
+  .step{display:flex;gap:16px;padding:16px 0;}
+  .step + .step{border-top:1px solid var(--line);}
+  .step-no{font-family:'Noto Serif Bengali',serif;font-size:20px;font-weight:600;color:var(--rose);flex:none;width:26px;}
+  .step-body h3{font-size:15.5px;font-weight:600;}
+  .step-body p{margin-top:4px;font-size:14px;color:color-mix(in srgb, var(--ink) 65%, transparent);}
+
+  /* receive help */
+  .cta-card{margin-top:20px;border:1px solid var(--line);border-radius:4px;padding:22px;background:color-mix(in srgb, var(--tint) 35%, transparent);}
+  .cta-card p{font-size:14.5px;color:color-mix(in srgb, var(--ink) 68%, transparent);margin-top:6px;}
+  .ghost-btn{margin-top:16px;display:inline-block;border:1px solid var(--rose);color:var(--rose-deep);padding:12px 20px;border-radius:100px;font-size:14.5px;font-weight:600;background:transparent;font-family:inherit;cursor:pointer;}
+
+  /* principle quote */
+  .principle{padding:40px 0;text-align:left;}
+  .principle blockquote{font-family:'Noto Serif Bengali',serif;font-size:19px;line-height:1.6;color:var(--rose-deep);font-weight:500;}
+  .principle cite{display:block;margin-top:10px;font-size:13px;font-style:normal;color:color-mix(in srgb, var(--ink) 55%, transparent);}
+
+  footer{padding:26px 0 44px;font-size:12.5px;color:color-mix(in srgb, var(--ink) 50%, transparent);}
+
+  .toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:100px;font-size:13.5px;
+    opacity:0;transition:all .25s ease;pointer-events:none;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap brand">
+    <div class="brand-mark">গ</div>
+    <div class="brand-name">গোলাপি ফাউন্ডেশন</div>
+  </div>
+</header>
+
+<div class="wrap hero">
+  <h1>মানুষ মানুষের জন্য</h1>
+  <p>গোলাপি ফাউন্ডেশন একটি মানবিক উদ্যোগ — যেখানে আপনার দান সরাসরি অসহায় মানুষের পাশে পৌঁছায়, যাচাই করে, স্বচ্ছভাবে।</p>
+  <div class="founder">প্রতিষ্ঠাতা — <b>মোঃ মহসিন</b></div>
+
+  <div class="ledger">
+    <div class="ledger-label">তহবিলে বর্তমান ব্যালেন্স</div>
+    <div class="ledger-amount" id="fundBalance">০ <span>টাকা</span></div>
+    <div class="ledger-row">
+      <div><strong id="totalHelped">০</strong><span>জনকে সহায়তা</span></div>
+      <div><strong id="totalDonors">০</strong><span>জন দাতা</span></div>
+    </div>
+  </div>
+</div>
+
+<section id="donate">
+  <div class="wrap">
+    <h2>দান করুন</h2>
+    <p class="lede">bKash বা ব্যাংকে টাকা পাঠিয়ে নিচের ফর্মে Transaction ID লিখুন। আমাদের টিম মিলিয়ে নিশ্চিত করবে।</p>
+
+    <div class="pay-box">
+      <div class="pay-row">
+        <div>
+          <div class="pay-method">bKash (Send Money)</div>
+          <div class="pay-number">01311-28584</div>
+        </div>
+        <button class="copy-btn" id="copyBtn" type="button">কপি করুন</button>
+      </div>
+      <div class="pay-note">ব্যাংক একাউন্ট শীঘ্রই যুক্ত হবে।</div>
+    </div>
+
+    <form id="donationForm">
+      <div class="field">
+        <label for="dName">আপনার নাম (না লিখলে "অজ্ঞাত" দেখানো হবে)</label>
+        <input type="text" id="dName" placeholder="যেমন: মোঃ করিম">
+      </div>
+      <div class="field">
+        <label for="dPhone">মোবাইল নাম্বার</label>
+        <input type="tel" id="dPhone" required placeholder="01XXXXXXXXX">
+      </div>
+      <div class="field">
+        <label for="dAmount">টাকার পরিমাণ</label>
+        <input type="number" id="dAmount" required min="10" placeholder="৫০০">
+      </div>
+      <div class="field">
+        <label for="dTrx">bKash Transaction ID</label>
+        <input type="text" id="dTrx" required placeholder="যেমন: 8N7A6B5C4D">
+      </div>
+      <button class="submit-btn" type="submit" id="donateSubmit">দান নিশ্চিত করুন</button>
+      <div class="form-msg" id="donateMsg"></div>
+    </form>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>যেভাবে কাজ করে</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-no">১</div>
+        <div class="step-body"><h3>দান জমা হয়</h3><p>আপনার পাঠানো টাকা যাচাই হয়ে তহবিলে যুক্ত হয়।</p></div>
+      </div>
+      <div class="step">
+        <div class="step-no">২</div>
+        <div class="step-body"><h3>আবেদন যাচাই</h3><p>সহায়তাপ্রার্থীর তথ্য ও পরিচয় ৭২ ঘন্টার মধ্যে সরেজমিনে যাচাই করা হয়।</p></div>
+      </div>
+      <div class="step">
+        <div class="step-no">৩</div>
+        <div class="step-body"><h3>সহায়তা পৌঁছায়</h3><p>যাচাই শেষে bKash বা ব্যাংকে সরাসরি টাকা পাঠানো হয়।</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>সহায়তা প্রয়োজন?</h2>
+    <div class="cta-card">
+      <h3 class="serif" style="font-size:17px;font-weight:600;">নিজের প্রোফাইল তৈরি করুন</h3>
+      <p>নাম, ঠিকানা ও একটি লাইভ ছবি দিয়ে আবেদন করুন। আমাদের টিম যাচাই করে ৭২ ঘন্টার মধ্যে জানাবে।</p>
+      <a class="ghost-btn" href="https://claude.ai/artifact/FucZbfHXTLT5YsVjUcU7FB" style="text-decoration:none;">আবেদন ফর্ম পূরণ করুন</a>
+    </div>
+  </div>
+</section>
+
+<section class="principle">
+  <div class="wrap">
+    <blockquote>"এমনভাবে দান করো, যেন ডান হাতের দান বাম হাত টের না পায়।"</blockquote>
+    <cite>দাতা ও গ্রহীতা একে অপরের কাছে সবসময় অপ্রকাশিত থাকবেন — এটাই গোলাপি ফাউন্ডেশনের নীতি।</cite>
+  </div>
+</section>
+
+<footer class="wrap">
+  © গোলাপি ফাউন্ডেশন — প্রতিষ্ঠাতা মোঃ মহসিন
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.13.2/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.13.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAK99NxwtyqRawZIBUECTGYM6knekRUz5I",
+    authDomain: "golapifoundation-84533.firebaseapp.com",
+    projectId: "golapifoundation-84533",
+    storageBucket: "golapifoundation-84533.firebasestorage.app",
+    messagingSenderId: "691772420543",
+    appId: "1:691772420543:web:84105a12898f3fcbe9f10a"
+  };
+
+  let db = null;
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  }catch(e){ console.error("Firebase init failed", e); }
+
+  function bnNumber(n){
+    const digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+    return String(n).replace(/[0-9]/g, d => digits[d]);
+  }
+
+  async function loadFund(){
+    if(!db) return;
+    try{
+      const doc = await db.collection('fund').doc('summary').get();
+      if(doc.exists){
+        const d = doc.data();
+        document.getElementById('fundBalance').innerHTML = bnNumber(d.totalBalance || 0) + ' <span>টাকা</span>';
+        document.getElementById('totalHelped').textContent = bnNumber(d.totalHelped || 0);
+        document.getElementById('totalDonors').textContent = bnNumber(d.totalDonors || 0);
+      }
+    }catch(e){ console.error("fund load failed", e); }
+  }
+  loadFund();
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 2400);
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText('01311285684'.length ? '01311-28584' : '');
+      showToast('নাম্বার কপি হয়েছে');
+    }catch(e){ showToast('কপি করা যায়নি, ম্যানুয়ালি লিখুন'); }
+  });
+
+  const form = document.getElementById('donationForm');
+  const msg = document.getElementById('donateMsg');
+  const submitBtn = document.getElementById('donateSubmit');
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    msg.className = 'form-msg';
+    if(!db){
+      msg.textContent = 'সংযোগ সমস্যা হয়েছে, একটু পর আবার চেষ্টা করুন।';
+      msg.classList.add('err');
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'পাঠানো হচ্ছে...';
+    const data = {
+      name: document.getElementById('dName').value.trim() || 'অজ্ঞাত',
+      phone: document.getElementById('dPhone').value.trim(),
+      amount: Number(document.getElementById('dAmount').value),
+      trxId: document.getElementById('dTrx').value.trim(),
+      method: 'bKash',
+      status: 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    try{
+      await db.collection('donations').add(data);
+      msg.textContent = 'ধন্যবাদ! আপনার দান যাচাইয়ের পর তহবিলে যুক্ত হবে।';
+      msg.classList.add('ok');
+      form.reset();
+    }catch(err){
+      console.error(err);
+      msg.textContent = 'দুঃখিত, পাঠানো যায়নি। আবার চেষ্টা করুন।';
+      msg.classList.add('err');
+    }finally{
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'দান নিশ্চিত করুন';
+    }
+  });
+</script>
+</body>
+</html>
