@@ -153,7 +153,7 @@
     <div class="facts">
       <div><b>০১</b><span>একবার ফর্ম পূরণ করলেই হবে — বারবার পাঠানোর দরকার নেই।</span></div>
       <div><b>০২</b><span>ছবিটা সরাসরি ক্যামেরা দিয়ে তুলতে হবে; গ্যালারির পুরোনো ছবি গ্রহণ করা হয় না।</span></div>
-      <div><b>০৩</b><span>সব তথ্য শুধু যাচাইয়ের কাজে ব্যবহার হয়।</span></div>
+      <div><b>০৩</b><span>সব তথ্য শুধু যাচাইয়ের কাজে ব্যবহার হয়; ছবি ও নম্বর শুধু দায়িত্বপ্রাপ্ত টিম দেখতে পারে।</span></div>
     </div>
   </div>
 
@@ -194,26 +194,26 @@
       </div>
       <div class="field">
         <label for="fName">আপনার নাম</label>
-        <input type="text" id="fName" name="name" autocomplete="name" required>
+        <input type="text" id="fName" name="name" autocomplete="name" maxlength="80" required>
       </div>
       <div class="field">
         <label for="fSpouse">স্বামী / স্ত্রীর নাম <span class="opt">— না থাকলে ফাঁকা রাখুন</span></label>
-        <input type="text" id="fSpouse" name="spouseName" autocomplete="off">
+        <input type="text" id="fSpouse" name="spouseName" autocomplete="off" maxlength="80">
       </div>
       <div class="field">
         <label for="fRelative">পরিবারের আরেকজন প্রাপ্তবয়স্কের নাম</label>
-        <input type="text" id="fRelative" name="relativeName" autocomplete="off" required>
+        <input type="text" id="fRelative" name="relativeName" autocomplete="off" maxlength="80" required aria-describedby="relativeErr">
         <p class="f-err" id="relativeErr">পরিবারের আরেকজন বড় মানুষের নাম দিতে হবে — যাচাইয়ের সময় যোগাযোগের জন্য।</p>
       </div>
       <div class="grid2">
         <div class="field">
           <label for="fPhone">মোবাইল নম্বর</label>
-          <input type="tel" id="fPhone" name="phone" inputmode="numeric" autocomplete="tel" required placeholder="01XXXXXXXXX">
+          <input type="tel" id="fPhone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="14" required aria-describedby="phoneErr" placeholder="01XXXXXXXXX">
           <p class="f-err" id="phoneErr">১১ সংখ্যার নম্বর দিন, যেমন 01712345678।</p>
         </div>
         <div class="field">
           <label for="fBkash">bKash নম্বর</label>
-          <input type="tel" id="fBkash" name="bkash" inputmode="numeric" autocomplete="off" required placeholder="01XXXXXXXXX">
+          <input type="tel" id="fBkash" name="bkash" inputmode="numeric" autocomplete="off" maxlength="14" required aria-describedby="bkashErr" placeholder="01XXXXXXXXX">
           <p class="f-err" id="bkashErr">bKash নম্বরটাও ১১ সংখ্যার হবে, যেমন 01712345678।</p>
         </div>
       </div>
@@ -248,7 +248,7 @@
       <div class="grid2">
         <div class="field">
           <label for="fVillage">গ্রামের নাম</label>
-          <input type="text" id="fVillage" name="village" required>
+          <input type="text" id="fVillage" name="village" maxlength="80" required>
         </div>
         <div class="field">
           <label for="fWard">ওয়ার্ড নম্বর</label>
@@ -261,7 +261,7 @@
       </div>
       <div class="field">
         <label for="fHouse">বাড়ির নাম / নম্বর</label>
-        <input type="text" id="fHouse" name="house" required>
+        <input type="text" id="fHouse" name="house" maxlength="80" required>
       </div>
     </section>
 
@@ -449,9 +449,15 @@
       setStatus(camStatus, 'ক্যামেরার ছবি এখনো তৈরি হয়নি — দু-এক সেকেন্ড অপেক্ষা করে আবার চাপ দিন।', 'warn');
       return;
     }
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+    var MAXPIX = 1000;                        // এক পাশে সর্বোচ্চ ১০০০ পিক্সেল
+    var vw = video.videoWidth, vh = video.videoHeight;
+    var ratio = Math.min(1, MAXPIX / Math.max(vw, vh));
+    canvas.width = Math.round(vw * ratio);
+    canvas.height = Math.round(vh * ratio);
+    var ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    if('imageSmoothingQuality' in ctx){ ctx.imageSmoothingQuality = 'high'; }
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     canvas.toBlob(function(blob){
       if(!blob){
         setStatus(camStatus, 'ছবিটা নেওয়া গেল না। আবার চেষ্টা করুন।', 'err');
@@ -465,7 +471,7 @@
       retakeBtn.style.display = 'inline-block';
       stopStream();
       setStatus(camStatus, 'ছবি নেওয়া হয়েছে। চেহারা পরিষ্কার দেখা যাচ্ছে না হলে "আবার তুলুন" চাপুন।', 'ok');
-    }, 'image/jpeg', 0.88);
+    }, 'image/jpeg', 0.72);
   });
 
   retakeBtn.addEventListener('click', function(){ startCamera(); });
@@ -496,7 +502,7 @@
       bad(el, errEl, isBad);
       if(isBad && !first) first = el;
     }
-    flag(nameIn, null, !nameIn.value.trim());
+    flag(nameIn, null, !nameIn.value.trim() || nameIn.value.length > 80);
     flag(relIn, $('relativeErr'), !relIn.value.trim());
     flag(phoneIn, $('phoneErr'), !/^01[3-9][0-9]{8}$/.test(phoneIn.value.replace(/[^0-9]/g, '')));
     flag(bkashIn, $('bkashErr'), !/^01[3-9][0-9]{8}$/.test(bkashIn.value.replace(/[^0-9]/g, '')));
@@ -546,7 +552,9 @@
     var photoRef = storage.ref().child('recipients/' + docRef.id + '.jpg');
 
     photoRef.put(photoBlob, { contentType: 'image/jpeg' })
-      .then(function(snapshot){ return snapshot.ref.getDownloadURL(); })
+      .then(function(snapshot){
+        return snapshot.ref.getDownloadURL().catch(function(e){ console.warn('download url skipped', e); return ''; });
+      })
       .then(function(photoURL){
         return docRef.set({
           name: nameIn.value.trim(),
@@ -562,6 +570,7 @@
           ward: wardSel.value,
           house: houseIn.value.trim(),
           photoURL: photoURL,
+          photoPath: 'recipients/' + docRef.id + '.jpg',
           status: 'pending',
           submittedAt: firebase.firestore.FieldValue.serverTimestamp()
         });

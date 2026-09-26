@@ -11,7 +11,12 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="গোলাপি ফাউন্ডেশন — মানুষ মানুষের জন্য">
 <meta property="og:description" content="স্বচ্ছ মানবিক তহবিল। প্রতিটি টাকার হিসাব সবার সামনে খোলা।">
-<meta property="og:image" content="https://www.genspark.ai/api/files/s/2wWRuR4z">
+<meta property="og:image" content="https://www.golapishop.online/images/banner.webp">
+<meta property="og:image:width" content="1440">
+<meta property="og:image:height" content="611">
+<meta property="og:url" content="https://www.golapishop.online/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://www.golapishop.online/">
 <meta property="og:locale" content="bn_BD">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%230A3527'/><circle cx='16' cy='16' r='14' fill='none' stroke='%23C9A961' stroke-width='1.6'/><circle cx='16' cy='16' r='5.5' fill='%23C9367E'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -380,7 +385,7 @@
         <p class="sr" id="balanceSr" aria-live="polite"></p>
       </div>
       <div class="st-cells">
-        <div class="st-cell"><b id="totalDonors">০</b><span>জন দাতা</span></div>
+        <div class="st-cell"><b id="totalDonors">০</b><span>টি দান</span></div>
         <div class="st-cell"><b id="totalHelped">০</b><span>জন সহায়তা পেয়েছেন</span></div>
       </div>
     </div>
@@ -454,12 +459,12 @@
 
         <div class="field">
           <label for="dName">আপনার নাম <span class="hint">— না দিলেও চলবে</span></label>
-          <input type="text" id="dName" name="name" autocomplete="name" placeholder="আপনার নাম লিখুন">
+          <input type="text" id="dName" name="name" autocomplete="name" maxlength="80" placeholder="আপনার নাম লিখুন">
         </div>
 
         <div class="field">
           <label for="dPhone">মোবাইল নম্বর</label>
-          <input type="tel" id="dPhone" name="phone" inputmode="numeric" autocomplete="tel" required placeholder="01XXXXXXXXX">
+          <input type="tel" id="dPhone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="14" required aria-describedby="phoneErr" placeholder="01XXXXXXXXX">
           <p class="f-err" id="phoneErr">১১ সংখ্যার মোবাইল নম্বর দিন, যেমন 01712345678।</p>
         </div>
 
@@ -471,13 +476,13 @@
             <button class="chip" type="button" data-amt="2000">২,০০০</button>
             <button class="chip" type="button" data-amt="5000">৫,০০০</button>
           </div>
-          <input type="number" id="dAmount" name="amount" inputmode="numeric" required min="10" step="1" placeholder="টাকার পরিমাণ লিখুন" style="margin-top:9px;">
+          <input type="number" id="dAmount" name="amount" inputmode="numeric" required min="10" max="1000000" step="1" aria-describedby="amountErr" placeholder="টাকার পরিমাণ লিখুন" style="margin-top:9px;">
           <p class="f-err" id="amountErr">সর্বনিম্ন ১০ টাকা। শুধু পূর্ণ সংখ্যা লিখুন।</p>
         </div>
 
         <div class="field">
           <label for="dTrx">bKash Transaction ID</label>
-          <input type="text" id="dTrx" name="trxId" required autocapitalize="characters" spellcheck="false" placeholder="bKash-এর SMS থেকে কপি করুন">
+          <input type="text" id="dTrx" name="trxId" required maxlength="26" aria-describedby="trxErr" autocapitalize="characters" spellcheck="false" placeholder="bKash-এর SMS থেকে কপি করুন">
           <p class="f-err" id="trxErr">Transaction ID-টা bKash-এর SMS থেকে হুবহু কপি করুন।</p>
         </div>
 
@@ -736,25 +741,40 @@
     }
     submitBtn.disabled = true;
     submitBtn.textContent = 'জমা হচ্ছে…';
-    db.collection('donations').add({
-      name: $('dName').value.trim() || 'অজ্ঞাত',
-      phone: data.phone,
-      amount: data.amount,
-      trxId: data.trx,
-      method: 'bKash',
-      status: 'pending',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(){
-      setMsg(msg, 'জমা হয়েছে। আমাদের টিম যাচাই করে নিশ্চিত করলে টাকা তহবিলে যোগ হবে — তখনই খাতায় দেখা যাবে। ধন্যবাদ।', 'ok');
-      form.reset();
-      chips.forEach(function(c){ c.setAttribute('aria-pressed','false'); });
-    }).catch(function(err){
-      console.error('donation submit failed', err);
-      setMsg(msg, 'দুঃখিত, জমা দেওয়া গেল না। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন — জমা না হওয়া পর্যন্ত টাকা আটকে থাকবে না।', 'err');
-    }).then(function(){
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'দান নিশ্চিত করুন';
-    });
+    db.collection('donations').where('trxId','==',data.trx).limit(1).get()
+      .catch(function(e){ console.warn('trx pre-check skipped', e); return { empty: true }; })
+      .then(function(dup){
+        if(!dup.empty){
+          var go = window.confirm('এই Transaction ID (' + data.trx + ') দিয়ে আগেই একটা দান জমা হয়ে আছে।\n\nএকই টাকা দুইবার গোনা আটকাতে — অ্যাডমিন প্যানেলে আগের জমাটা দেখা হয়ে থাকলে এবার আর দেবেন না।\n\nতবুও আবার জমা দিতে চান?');
+          if(!go){ throw { __skip: true }; }
+        }
+        return db.collection('donations').add({
+          name: $('dName').value.trim() || 'অজ্ঞাত',
+          phone: data.phone,
+          amount: data.amount,
+          trxId: data.trx,
+          method: 'bKash',
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .then(function(){
+        setMsg(msg, 'জমা হয়েছে। আমাদের টিম যাচাই করে নিশ্চিত করলে টাকা তহবিলে যোগ হবে — তখনই খাতায় দেখা যাবে। ধন্যবাদ।', 'ok');
+        form.reset();
+        chips.forEach(function(c){ c.setAttribute('aria-pressed','false'); });
+      })
+      .catch(function(err){
+        if(err && err.__skip){
+          setMsg(msg, 'জমা দেওয়া হয়নি। এই Transaction ID আগেই জমা আছে — অ্যাডমিন প্যানেলে যাচাই করে নিশ্চিত করলেই তহবিলে যোগ হবে।', 'err');
+          return;
+        }
+        console.error('donation submit failed', err);
+        setMsg(msg, 'দুঃখিত, জমা দেওয়া গেল না। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন — জমা না হওয়া পর্যন্ত টাকা আটকে থাকবে না।', 'err');
+      })
+      .then(function(){
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'দান নিশ্চিত করুন';
+      });
   });
 
   /* ---------------- mobile sticky — steps aside at the donate section ---------------- */
