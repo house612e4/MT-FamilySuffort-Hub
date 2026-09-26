@@ -92,6 +92,9 @@
   .adjust input:focus{outline:none;border-color:var(--gold);}
   .adjust .lbl{font-size:.78rem;color:var(--txt-50);}
   .adjust .hint{font-size:.75rem;color:var(--txt-35);flex-basis:100%;}
+  .chk{display:flex;align-items:center;gap:9px;font-size:.79rem;color:var(--txt-70);cursor:pointer;flex-basis:100%;}
+  .chk input{width:16px;height:16px;accent-color:var(--jade);cursor:pointer;flex:none;}
+  .fixrow{display:flex;align-items:center;gap:9px;flex-basis:100%;border-top:1px dashed var(--line-2);padding-top:11px;margin-top:2px;flex-wrap:wrap;}
 
   /* tabs */
   .tabs{display:flex;gap:2px;margin-top:26px;border-bottom:1px solid var(--line-2);overflow-x:auto;-webkit-overflow-scrolling:touch;}
@@ -133,6 +136,17 @@
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(16px);background:var(--panel-2);border:1px solid var(--gold);color:var(--txt);
     padding:12px 20px;border-radius:99px;font-size:.85rem;opacity:0;transition:opacity .2s ease,transform .2s ease;pointer-events:none;z-index:60;max-width:calc(100vw - 32px);text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  @media (max-width:719px){
+    .top-in{gap:10px;padding:0 14px;}
+    .top-in .bt{min-width:0;overflow:hidden;}
+    .bt b{font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .bt i{font-size:.53rem;letter-spacing:.15em;}
+    .who{gap:8px;flex:none;}
+    .who span{display:none;}
+    .who button,.who .btn{padding:7px 11px;font-size:.75rem;}
+    .tab{padding:12px 10px;font-size:.82rem;gap:6px;}
+    .cnt{padding:1px 6px;font-size:.66rem;}
+  }
   @media (prefers-reduced-motion:reduce){.toast,.btn{transition:none;}}
 </style>
 </head>
@@ -188,11 +202,17 @@
 
     <div class="adjust" id="adjustBox">
       <span class="lbl">পরিমাণ</span>
-      <input type="number" id="adjAmount" inputmode="numeric" step="1" min="1" placeholder="যেমন 5000">
+      <input type="number" id="adjAmount" inputmode="numeric" step="1" min="1" placeholder="পরিমাণ লিখুন">
       <button class="btn btn-jade" id="adjAdd" type="button">যোগ করুন</button>
       <button class="btn btn-rose" id="adjSub" type="button">বিয়োগ করুন</button>
       <button class="btn btn-ghost" id="adjCancel" type="button">বাতিল</button>
-      <p class="hint">ব্যাংক বা অন্য মাধ্যমে সরাসরি পাওয়া টাকা তহবিলে যোগ করতে, বা ভুল এন্ট্রি ঠিক করতে ব্যবহার করুন। দান নিশ্চিত করা বা সহায়তা দেওয়া এই বাটন দিয়ে হয় না — সেগুলোর নিজের জায়গা আছে।</p>
+      <label class="chk" for="adjAsDonor"><input type="checkbox" id="adjAsDonor" checked> টাকাটা একজন দাতার — মোট দাতার সংখ্যাতেও যোগ করুন</label>
+      <p class="hint">ব্যাংক বা হাতে সরাসরি পাওয়া টাকা তহবিলে যোগ করতে, বা ভুল এন্ট্রি ঠিক করতে ব্যবহার করুন। উপরের ঘরে টিক দেওয়া থাকলে টাকাটা একজন দাতা হিসেবে গোনা হবে।</p>
+      <div class="fixrow">
+        <span class="lbl">দাতার সংখ্যা সরাসরি ঠিক করুন</span>
+        <input type="number" id="donorFix" inputmode="numeric" step="1" min="0" placeholder="সংখ্যা লিখুন">
+        <button class="btn btn-ghost" id="donorFixBtn" type="button">সংখ্যাটা সেট করুন</button>
+      </div>
     </div>
 
     <div class="tabs" role="tablist" aria-label="অ্যাডমিন বিভাগ">
@@ -343,6 +363,19 @@
     $('adjustBox').classList.remove('open');
     $('adjustToggle').setAttribute('aria-expanded','false');
     $('adjAmount').value = '';
+    $('donorFix').value = '';
+  });
+
+  $('donorFixBtn').addEventListener('click', function(){
+    var n = Number($('donorFix').value);
+    if(!Number.isInteger(n) || n < 0){
+      showToast('০ বা তার বেশি পূর্ণ সংখ্যা লিখুন');
+      return;
+    }
+    if(!window.confirm('মোট দাতার সংখ্যা ' + bn(n) + ' করে সেট করবেন?')) return;
+    db.collection('fund').doc('summary').set({ totalDonors: n }, { merge: true })
+      .then(function(){ showToast('মোট দাতার সংখ্যা ' + bn(n) + ' করা হয়েছে'); $('donorFix').value = ''; })
+      .catch(function(e){ fail('donor count fix', e); });
   });
 
   function adjustBalance(sign){
@@ -356,11 +389,14 @@
       showToast('তহবিলে আছে মাত্র ' + bnMoney(balanceCache) + ' টাকা — এর বেশি বিয়োগ করা যাবে না।');
       return;
     }
+    var asDonor = (sign > 0) && $('adjAsDonor').checked;
     var label = sign > 0 ? 'যোগ' : 'বিয়োগ';
-    if(!window.confirm('তহবিলে ' + bnMoney(amt) + ' টাকা ' + label + ' করবেন?')) return;
-    db.collection('fund').doc('summary').set({ totalBalance: FieldValue.increment(sign * amt) }, { merge: true })
+    if(!window.confirm('তহবিলে ' + bnMoney(amt) + ' টাকা ' + label + ' করবেন?' + (asDonor ? ' (একজন দাতাও যোগ হবেন)' : ''))) return;
+    var patch = { totalBalance: FieldValue.increment(sign * amt) };
+    if(asDonor){ patch.totalDonors = FieldValue.increment(1); }
+    db.collection('fund').doc('summary').set(patch, { merge: true })
       .then(function(){
-        showToast('তহবিলে ' + bnMoney(amt) + ' টাকা ' + label + ' হয়েছে');
+        showToast('তহবিলে ' + bnMoney(amt) + ' টাকা ' + label + ' হয়েছে' + (asDonor ? ' — দাতার সংখ্যায়ও যোগ হয়েছে' : ''));
         $('adjAmount').value = '';
       })
       .catch(function(e){ fail('balance adjust', e); });

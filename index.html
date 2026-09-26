@@ -28,7 +28,7 @@
     --ink:#0D2119; --ink-70:rgba(13,33,25,.72); --ink-55:rgba(13,33,25,.58);
     --line:rgba(13,33,25,.15); --line-2:rgba(13,33,25,.075);
     --line-gold:rgba(201,169,97,.42); --line-light:rgba(231,206,149,.2);
-    --r:3px; --pill:999px; --wrap:1160px; --gut:20px;
+    --r:3px; --pill:999px; --wrap:1160px; --gut:23px;
     --fd:'Anek Bangla',system-ui,-apple-system,sans-serif;
     --fb:'Hind Siliguri',system-ui,-apple-system,sans-serif;
   }
@@ -96,12 +96,12 @@
   .hero::after{content:"";position:absolute;inset:0;z-index:-1;
     background:
       radial-gradient(85% 70% at 84% 44%,rgba(63,165,126,.2),transparent 62%),
-      linear-gradient(100deg,rgba(4,27,21,.985) 0%,rgba(4,27,21,.95) 34%,rgba(6,36,25,.68) 62%,rgba(6,36,25,.42) 100%);}
+      linear-gradient(100deg,rgba(4,27,21,.95) 0%,rgba(4,27,21,.88) 40%,rgba(6,36,25,.62) 66%,rgba(6,36,25,.4) 100%);}
   .hero-rings{position:absolute;z-index:-1;right:-16%;top:50%;transform:translateY(-50%);width:min(820px,126vw);aspect-ratio:1;pointer-events:none;opacity:.9;}
   .hero-rings span{position:absolute;inset:0;border-radius:50%;border:1px solid rgba(201,169,97,.26);}
   .hero-rings span:nth-child(2){inset:11%;border-color:rgba(201,169,97,.16);}
   .hero-rings span:nth-child(3){inset:23%;border-color:rgba(201,169,97,.1);}
-  .hero-in{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:19px;padding:34px 0 34px;}
+  .hero-in{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:21px;padding:36px 0 40px;}
   .hero-lock{display:flex;align-items:center;gap:14px;}
   .hero-lock-txt{display:flex;flex-direction:column;gap:1px;}
   .hero-lock-txt b{font-family:var(--fd);font-size:.92rem;font-weight:700;color:#F4EFE4;letter-spacing:.01em;}
@@ -148,7 +148,7 @@
   .st-lbl{font-size:.78rem;color:rgba(244,239,228,.58);letter-spacing:.03em;}
   .st-amt{display:flex;align-items:baseline;gap:8px;margin-top:6px;}
   .st-amt i{font-family:var(--fd);font-style:normal;font-size:clamp(1.5rem,6vw,2.1rem);font-weight:600;color:var(--gold);}
-  .st-amt b{font-family:var(--fd);font-size:clamp(3rem,17vw,5rem);font-weight:700;line-height:1.08;padding-bottom:2px;letter-spacing:-.028em;font-variant-numeric:tabular-nums;color:#FBF8F3;}
+  .st-amt b{font-family:var(--fd);font-size:clamp(2.6rem,14.5vw,5rem);font-weight:700;line-height:1.08;padding-bottom:2px;letter-spacing:-.028em;font-variant-numeric:tabular-nums;color:#FBF8F3;}
   .st-cells{display:grid;grid-template-columns:1fr 1fr;}
   .st-cell{padding:22px 0 0;display:flex;flex-direction:column;gap:3px;}
   .st-cell+.st-cell{border-left:1px solid var(--line-light);padding-left:20px;}
@@ -454,7 +454,7 @@
 
         <div class="field">
           <label for="dName">আপনার নাম <span class="hint">— না দিলেও চলবে</span></label>
-          <input type="text" id="dName" name="name" autocomplete="name" placeholder="যেমন: মোঃ করিম">
+          <input type="text" id="dName" name="name" autocomplete="name" placeholder="আপনার নাম লিখুন">
         </div>
 
         <div class="field">
@@ -477,7 +477,7 @@
 
         <div class="field">
           <label for="dTrx">bKash Transaction ID</label>
-          <input type="text" id="dTrx" name="trxId" required autocapitalize="characters" spellcheck="false" placeholder="যেমন: 8N7A6B5C4D">
+          <input type="text" id="dTrx" name="trxId" required autocapitalize="characters" spellcheck="false" placeholder="bKash-এর SMS থেকে কপি করুন">
           <p class="f-err" id="trxErr">Transaction ID-টা bKash-এর SMS থেকে হুবহু কপি করুন।</p>
         </div>
 
@@ -564,7 +564,7 @@
         <p class="f-h">যোগাযোগ</p>
         <ul class="f-list">
           <li>bKash — <span id="bkashFooter">01311-285684</span></li>
-          <li><a href="/cdn-cgi/l/email-protection#91f6fefdf0e1f8f7fee4fff5f0e5f8feffd1f6fcf0f8fdbff2fefc"><span class="__cf_email__" data-cfemail="e3848c8f82938a858c968d8782978a8c8da3848e828a8fcd808c8e">[email&#160;protected]</span></a></li>
+          <li><a href="#" id="mailLink" rel="nofollow" data-mail-user="golapifoundation" data-mail-domain="gmail.com">golapifoundation [at] gmail [dot] com</a></li>
           <li>বেগমগঞ্জ, নোয়াখালী</li>
           <li><a href="admin.html" rel="nofollow">টিম লগইন</a></li>
         </ul>
@@ -587,7 +587,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/firebase@10.13.2/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.13.2/firebase-app-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@10.13.2/firebase-firestore-compat.js"></script>
 <script>
 (function(){
@@ -776,6 +776,13 @@
       });
     }, { rootMargin: '0px 0px -12% 0px', threshold: 0.06 });
     Array.prototype.forEach.call(reveals, function(el){ ro.observe(el); });
+  }
+
+  var mail = $('mailLink');
+  if(mail){
+    var addr = mail.getAttribute('data-mail-user') + '@' + mail.getAttribute('data-mail-domain');
+    mail.textContent = addr;
+    mail.setAttribute('href', 'mailto:' + addr);
   }
 
   $('year').textContent = bn(new Date().getFullYear());
